@@ -1,7 +1,6 @@
 import { Response, Request, NextFunction } from 'express'
 import {aj} from '../config/arcjet'
 import { ArcjetNodeRequest, slidingWindow } from '@arcjet/node'
-import { error } from 'node:console'
 
 const securityMiddleware = async (
 	req: Request,
@@ -18,7 +17,7 @@ const securityMiddleware = async (
 
 		switch (role) {
 			case 'admin':
-				limit = 2
+				limit = 20
 				message = 'Admin request limit exceeded (20 per minute)'
 				break
 			case 'teacher':
@@ -55,7 +54,7 @@ const securityMiddleware = async (
 			return res.status(403).json({error: 'Forbidden', message: 'Request blocked by security policy'})
 		}
 		if(decision.isDenied() && decision.reason.isRateLimit()) {
-			return res.status(403).json({error: 'Too many requests', message})
+			return res.status(429).json({error: 'Too many requests', message})
 		}
 
 		next()
